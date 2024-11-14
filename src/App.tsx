@@ -10,7 +10,7 @@ interface StateMachineConfig<StateType, StepNames extends string> {
   views: {
     [key in StepNames]: React.ComponentType<{
       state: StateType
-      setSatate: React.Dispatch<React.SetStateAction<StateType>>
+      setState: React.Dispatch<React.SetStateAction<StateType>>
     }>
   }
 }
@@ -20,7 +20,49 @@ type WizardState = {
   age: number
 }
 
-type StepNames = 'step 1' | 'spet 2' | 'confirmation'
+type StepNames = 'step1' | 'step2' | 'confirmation'
+
+const stateMachineConfig: StateMachineConfig<WizardState, StepNames> = {
+  initialStep: 'step 1',
+  steps: {
+    step1: {
+      canAdvance: state => !!state.name
+    },
+    step2: {
+      canAdvance: state => !!state.age
+    },
+    confirmation: {
+      canAdvance: () => true
+    }
+  },
+  views: {
+    step1: ({ state, setState }) => {
+      <div>
+        <input 
+          type="text" 
+          value={ state.name }
+          onChange={ e => setState((prev) => ({ ...prev, name: e.target.value }))}
+          placeholder='Full Name'
+        />
+      </div>
+    },
+    step2: ({ state, setState }) => {
+      <div>
+        <input 
+          type="number" 
+          value={ state.age }
+          onChange={ e => setState((prev) => ({ ...prev, age: parseInt(e.target.value) }))}
+          placeholder='Age'
+        />
+      </div>
+    },
+    confirmation: ({ state }) =>{
+      <div>
+        <p> { state.name } is { state.age } </p>
+      </div>
+    } 
+  }
+}
 
 function App() {
   const [count, setCount] = useState(0)
